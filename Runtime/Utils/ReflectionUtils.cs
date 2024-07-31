@@ -14,12 +14,20 @@ namespace Z3.Utils
         /// <summary> Declared Public and Private </summary>
         public const BindingFlags AllDeclared = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static | BindingFlags.DeclaredOnly;
 
-#if UNITY_EDITOR
         public static IEnumerable<Type> GetDeriveredConcreteTypes<T>()
         {
-            return UnityEditor.TypeCache.GetTypesDerivedFrom<T>().Where(t => !t.IsAbstract);
+             return AppDomain.CurrentDomain.GetAssemblies()
+                .SelectMany(a => a.GetTypes())
+                .Where(t => typeof(T).IsAssignableFrom(t) && !t.IsAbstract && t != typeof(T));
         }
-#endif
+
+        
+        public static IEnumerable<Type> GetDerivedConcreteTypesInAssembly<T>()
+        {
+            return Assembly.GetAssembly(typeof(T))
+                .GetTypes()
+                .Where(t => typeof(T).IsAssignableFrom(t) && !t.IsAbstract && t != typeof(T));
+        }
 
         public static bool HasAttribute<T>(object target) where T : Attribute
         {
