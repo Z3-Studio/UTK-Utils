@@ -1,21 +1,23 @@
 {
-    "name": "com.z3.utils",
-    "displayName": "Z3 Utils",
-    "version": "1.0.0",
-    "description": "Utility functions and solutions for Unity.",
-    "unity": "2021.3",
-    "documentationUrl": "https://github.com/Z3-Studio/UTK-Utils/blob/master/README.md",
-    "changelogUrl": "https://github.com/Z3-Studio/UTK-Utils/blob/master/CHANGELOG.md",
-    "licensesUrl": "https://github.com/Z3-Studio/UTK-Utils/blob/master/LICENSE.md",
-    "license": "MIT",
-    "dependencies": {},
-    "keywords": [
-        "Utility",
-        "Helpers",
-        "Unity"
-    ],
-    "author": {
-        "name": "Z3 Studio",
-        "url": "https://z3-studio.com/"
-    }
+  "name": "com.z3.utils",
+  "displayName": "Z3 Utils",
+  "version": "1.0.1",
+  "description": "Utility functions and solutions for Unity.",
+  "unity": "2021.3",
+  "documentationUrl": "https://github.com/Z3-Studio/UTK-Utils/blob/master/README.md",
+  "changelogUrl": "https://github.com/Z3-Studio/UTK-Utils/blob/master/CHANGELOG.md",
+  "licensesUrl": "https://github.com/Z3-Studio/UTK-Utils/blob/master/LICENSE.md",
+  "license": "MIT",
+  "dependencies": {
+    "com.unity.nuget.newtonsoft-json": "3.2.1"
+  },
+  "keywords": [
+    "Utility",
+    "Helpers",
+    "Unity"
+  ],
+  "author": {
+    "name": "Z3 Studio",
+    "url": "https://z3-studio.com/"
+  }
 }
