@@ -1,7 +1,7 @@
 {
   "name": "com.z3.utils",
   "displayName": "Z3 Utils",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Utility functions and solutions for Unity.",
   "unity": "2021.3",
   "documentationUrl": "https://github.com/Z3-Studio/UTK-Utils/blob/master/README.md",

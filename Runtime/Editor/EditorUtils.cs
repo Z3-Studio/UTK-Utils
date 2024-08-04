@@ -2,7 +2,8 @@
 using UnityEngine;
 using System.IO;
 using System.Collections.Generic;
-
+using System.Linq;
+using Object = UnityEngine.Object;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -72,6 +73,39 @@ namespace Z3.Utils.Editor
             }
 
             return assets;
+#else
+            throw EditorOperationExpection();
+#endif
+        }
+
+        public static void DestroyAsset(Object obj)
+        {
+#if UNITY_EDITOR
+            if (AssetDatabase.IsSubAsset(obj))
+            {
+                AssetDatabase.RemoveObjectFromAsset(obj);
+                return;
+            }
+
+            string path = AssetDatabase.GetAssetPath(obj);
+            AssetDatabase.DeleteAsset(path);
+#else
+            throw EditorOperationExpection();
+#endif
+        }
+
+        public static IEnumerable<T> GetAllSubAssets<T>(Object target) where T : Object
+        {
+#if UNITY_EDITOR
+            // Get path and sub items
+            string path = AssetDatabase.GetAssetPath(target);
+            List<Object> list = AssetDatabase.LoadAllAssetsAtPath(path).ToList();
+
+            // Remove target
+            list.Remove(target);
+
+            // Return children
+            return list.Select(o => o as T);
 #else
             throw EditorOperationExpection();
 #endif

@@ -8,11 +8,17 @@ namespace Z3.Utils
 {
     public static class ReflectionUtils
     {
-        /// <summary> All Public and Private. Don't incluside private inherited </summary>
-        public const BindingFlags PublicAndPrivate = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
+        /// <summary> All instance members, including public and private </summary>
+        /// <remarks> Inherited private members excluded </remarks>
+        public const BindingFlags InstanceAccess = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
 
-        /// <summary> Declared Public and Private </summary>
-        public const BindingFlags AllDeclared = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static | BindingFlags.DeclaredOnly;
+        /// <summary> All declared instance members, including public and private </summary>
+        /// <remarks> Excluding inherited members and static </remarks>
+        public const BindingFlags InstanceDeclared = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.DeclaredOnly;
+
+        /// <summary> All declared in scope </summary>
+        /// <remarks> All inherited members excluded </remarks>
+        public const BindingFlags AllDeclared = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.DeclaredOnly | BindingFlags.Static;
 
         public static IEnumerable<Type> GetDeriveredConcreteTypes<T>()
         {
@@ -36,15 +42,15 @@ namespace Z3.Utils
 
         public static FieldInfo GetField(object target, string name)
         {
-            return GetMember(target, type => type.GetField(name, PublicAndPrivate));
+            return GetMember(target, type => type.GetField(name, InstanceDeclared));
         }
 
         public static List<FieldInfo> GetAllFields(object target)
         {
-            return GetAllMembers(target, (t) => t.GetFields(PublicAndPrivate));
+            return GetAllMembers(target, (t) => t.GetFields(InstanceDeclared));
         }
 
-        public static List<MemberInfo> GetAllMembers(object target, BindingFlags bindingFlags = PublicAndPrivate, string ignoreNamespace = null)
+        public static List<MemberInfo> GetAllMembers(object target, BindingFlags bindingFlags = InstanceDeclared, string ignoreNamespace = null)
         {
             return GetAllMembers(target, (t) => t.GetMembers(bindingFlags));
         }
