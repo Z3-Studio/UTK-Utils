@@ -6,6 +6,23 @@ namespace Z3.Utils.ExtensionMethods
 {
     public static class AnimatorExtensions
     {
+        public static void PlayStateAllLayers(this Animator animator, string stateName, float transition = 0.25f)
+        {
+            for (int layerIndex = 0; layerIndex <= animator.layerCount; layerIndex++)
+            {
+                PlayState(animator, stateName, transition, layerIndex);
+            }
+        }
+
+        /// <summary>
+        /// Similar than <see cref="Animator.CrossFadeInFixedTime"/> but the transition is normalized, using the state to be calculated
+        /// </summary>
+        public static void PlayState(this Animator animator, string stateName, float transition = 0.25f, int layerIndex = 0)
+        {
+            AnimatorStateInfo current = animator.GetCurrentAnimatorStateInfo(layerIndex);
+            animator.CrossFade(stateName, transition / current.length, layerIndex);
+        }
+
         public static bool IsState(this Animator animator, string stateName, int layer)
         {
             bool isName = animator.GetCurrentAnimatorStateInfo(layer).IsName(stateName);

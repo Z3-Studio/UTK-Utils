@@ -5,6 +5,17 @@ namespace Z3.Utils.ExtensionMethods
 {
     public static class VectorExtensions
     {
+        public static Vector2 RoundTo(this Vector2 vector, int decimalPlaces) => new Vector2(
+            vector.x.RoundTo(decimalPlaces),
+            vector.y.RoundTo(decimalPlaces)
+        );
+
+        public static Vector3 RoundTo(this Vector3 vector, int decimalPlaces) => new Vector3(
+            vector.x.RoundTo(decimalPlaces),
+            vector.y.RoundTo(decimalPlaces),
+            vector.z.RoundTo(decimalPlaces)
+        );
+
         public static Vector2Int ToVector2Int(this int value) => new Vector2Int(value, value);
 
         public static Vector3 ToVector3(this Vector2 vector) => new Vector3(vector.x, vector.y, 0f);

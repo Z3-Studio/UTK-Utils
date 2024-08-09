@@ -4,6 +4,14 @@ namespace Z3.Utils.ExtensionMethods
 {
     public static class StyleExtensions
     {
+        public static void AddToClassList(this VisualElement visualElement, string[] classes)
+        {
+            foreach (string className in classes)
+            {
+                visualElement.AddToClassList(className);
+            }
+        }
+
         public static void SetDisplay(this IStyle style, bool visible)
         {
             style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;

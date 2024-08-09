@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -8,6 +9,40 @@ namespace Z3.Utils.ExtensionMethods
 {
     public static class CollectionExtensions
     {
+        public static void ReplaceAll<T>(this IList<T> list, IEnumerable<T> newItems)
+        {
+            list.Clear();
+
+            foreach (T item in newItems)
+            {
+                list.Add(item);
+            }
+        }
+
+        public static void ReplaceAll(this IList list, IEnumerable newItems)
+        {
+            list.Clear();
+
+            foreach (object item in newItems)
+            {
+                list.Add(item);
+            }
+        }
+
+        public static IEnumerable<T> GetDuplicates<T>(this IEnumerable<T> source)
+        {
+            return source.GroupBy(x => x)
+                .Where(g => g.Count() > 1)
+                .Select(g => g.Key);
+        }
+
+        public static IEnumerable<T> GetUniqueItems<T>(this IEnumerable<T> source)
+        {
+            return source.GroupBy(x => x)
+                .Where(g => g.Count() == 1)
+                .Select(g => g.Key);
+        }
+
         public static T GetRandom<T>(this IList<T> list)
         {
             int randomIndex = Random.Range(0, list.Count);

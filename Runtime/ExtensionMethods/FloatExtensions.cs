@@ -1,9 +1,16 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace Z3.Utils.ExtensionMethods
 {
     public static class FloatExtensions
     {
+        public static float RoundTo(this float value, int decimalPlaces)
+        {
+            float multiplier = Mathf.Pow(10f, decimalPlaces);
+            return Mathf.Round(value * multiplier) / multiplier;
+        }
+
         /// <returns> Return a value between -180 to 180 </returns>
         public static float NormalizeAngle(this float angle)
         {

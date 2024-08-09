@@ -45,7 +45,6 @@ namespace Z3.Utils
             return mergedArray;
         }
 
-
         public static Type GetElementType(IEnumerable iList)
         {
             Type listType = iList.GetType();
