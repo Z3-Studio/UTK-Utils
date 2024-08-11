@@ -58,7 +58,7 @@ namespace Z3.Utils.Editor
 
         public static InvalidOperationException EditorOperationExpection() => new InvalidOperationException("This operation is only valid in the editor");
 
-        public static List<T> GetAllAssets<T>() where T : UnityEngine.Object
+        public static List<T> GetAllAssets<T>() where T : Object
         {
 #if UNITY_EDITOR
             Type type = typeof(T);
