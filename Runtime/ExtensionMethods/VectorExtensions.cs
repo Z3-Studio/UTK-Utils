@@ -1,10 +1,33 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
 using Random = UnityEngine.Random;
 
 namespace Z3.Utils.ExtensionMethods
 {
     public static class VectorExtensions
     {
+        public static Vector2 CalculateCentroid(this IEnumerable<Vector2> vectors)
+        {
+            int count = vectors.Count();
+            if (vectors == null || count == 0)
+                return Vector2.zero;
+
+            float sumX = 0f;
+            float sumY = 0f;
+
+            foreach (Vector2 vector in vectors)
+            {
+                sumX += vector.x;
+                sumY += vector.y;
+            }
+
+            float centroidX = sumX / count;
+            float centroidY = sumY / count;
+
+            return new Vector2(centroidX, centroidY);
+        }
+
         public static Vector2 RoundTo(this Vector2 vector, int decimalPlaces) => new Vector2(
             vector.x.RoundTo(decimalPlaces),
             vector.y.RoundTo(decimalPlaces)
