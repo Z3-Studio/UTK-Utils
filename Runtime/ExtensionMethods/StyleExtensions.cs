@@ -12,6 +12,11 @@ namespace Z3.Utils.ExtensionMethods
             }
         }
 
+        public static void AddAlignedStyle(this VisualElement visualElement)
+        {
+            visualElement.AddToClassList(BaseField<object>.alignedFieldUssClassName);
+        }
+
         public static void SetDisplay(this IStyle style, bool visible)
         {
             style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;

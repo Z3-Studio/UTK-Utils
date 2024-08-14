@@ -25,13 +25,40 @@ namespace Z3.Utils
             return GetCachedComponent<Component>(componentType);
         }
 
-        public T GetCachedComponent<T>() where T : class
+        public T GetCachedComponent<T>() where T : Component
         {
             Type componentType = typeof(T);
             return GetCachedComponent<T>(componentType);
         }
 
-        public T GetCachedComponent<T>(Type componentType) where T : class
+        public T GetOrAddCachedComponent<T>() where T : Component
+        {
+            Type componentType = typeof(T);
+            if (components.TryGetValue(componentType, out Component component))
+            {
+                // If the cached component is not null, return it
+                if (component)
+                {
+                    return component as T;
+                }
+
+                components.Remove(componentType);
+            }
+
+            // Default get component and cache
+            if (GameObject.TryGetComponent(out T tComponent))
+            {
+                components[componentType] = tComponent;
+                return tComponent;
+
+            }
+
+            tComponent = GameObject.AddComponent<T>();
+            components[componentType] = tComponent;
+            return tComponent;
+        }
+
+        public T GetCachedComponent<T>(Type componentType) where T : Component
         {
             // Optimizing get component 
             if (components.TryGetValue(componentType, out Component component))
