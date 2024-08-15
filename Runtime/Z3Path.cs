@@ -6,6 +6,7 @@ namespace Z3.Utils
     public class Z3Path
     {
         public const string ScriptableObjects = "Z3/";
+        public const string MenuItemCreate = "Assets/Create/Z3/";
 
         public const string MenuPath = "Z3/";
         public const string UiBuilderMenuPath = MenuPath + "UI Builder/";
