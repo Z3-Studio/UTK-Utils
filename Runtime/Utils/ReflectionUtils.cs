@@ -20,19 +20,24 @@ namespace Z3.Utils
         /// <remarks> All inherited members excluded </remarks>
         public const BindingFlags AllDeclared = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.DeclaredOnly | BindingFlags.Static;
 
-        public static IEnumerable<Type> GetDeriveredConcreteTypes<T>()
+        public static IEnumerable<Type> GetDeriveredConcreteTypes<T>() => GetDeriveredConcreteTypes(typeof(T));
+
+        /// <summary> All assemblies </summary>
+        public static IEnumerable<Type> GetDeriveredConcreteTypes(Type type)
         {
-             return AppDomain.CurrentDomain.GetAssemblies()
-                .SelectMany(a => a.GetTypes())
-                .Where(t => typeof(T).IsAssignableFrom(t) && !t.IsAbstract && t != typeof(T));
+            return AppDomain.CurrentDomain.GetAssemblies()
+               .SelectMany(a => a.GetTypes())
+               .Where(t => type.IsAssignableFrom(t) && !t.IsAbstract && t != type);
         }
 
-        
-        public static IEnumerable<Type> GetDerivedConcreteTypesInAssembly<T>()
+        public static IEnumerable<Type> GetDerivedConcreteTypesInAssembly<T>() => GetDerivedConcreteTypesInAssembly(typeof(T));
+
+        /// <summary> Only in same assemblies </summary>
+        public static IEnumerable<Type> GetDerivedConcreteTypesInAssembly(Type type)
         {
-            return Assembly.GetAssembly(typeof(T))
+            return Assembly.GetAssembly(type)
                 .GetTypes()
-                .Where(t => typeof(T).IsAssignableFrom(t) && !t.IsAbstract && t != typeof(T));
+                .Where(t => type.IsAssignableFrom(t) && !t.IsAbstract && t != type);
         }
 
         public static bool HasAttribute<T>(object target) where T : Attribute

@@ -5,7 +5,7 @@ namespace Z3.Utils
     /// <summary>
     /// Temporary
     /// </summary>
-    public abstract class Monostate<T> : MonoBehaviour where T : MonoBehaviour 
+    public abstract class Singleton<T> : MonoBehaviour where T : MonoBehaviour 
     {
         protected static T Instance { get; private set; }
 

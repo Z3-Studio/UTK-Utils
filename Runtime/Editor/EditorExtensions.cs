@@ -4,7 +4,7 @@ using Object = UnityEngine.Object;
 using UnityEditor;
 #endif
 
-namespace Z3.Utils.Editor
+namespace Z3.Utils.Editor.ExtensionMethods
 {
     public static class EditorExtensions
     {
@@ -18,5 +18,7 @@ namespace Z3.Utils.Editor
         }
 
         private static InvalidOperationException EditorOperationExpection() => EditorUtils.EditorOperationExpection();
+
+        public static string GetAssetGuid(this Object asset) => EditorUtils.GetAssetGuid(asset);
     }
 }

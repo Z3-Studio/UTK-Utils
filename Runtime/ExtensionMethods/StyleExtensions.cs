@@ -22,6 +22,12 @@ namespace Z3.Utils.ExtensionMethods
             style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
         }
 
+        public static void SetFullVisibility(this IStyle style, bool visible)
+        {
+            style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
+            style.visibility = visible ? Visibility.Visible : Visibility.Hidden;
+        }
+
         public static void SetBorderColor(this IStyle style, StyleColor color)
         {
             style.borderTopColor = color;
@@ -30,12 +36,20 @@ namespace Z3.Utils.ExtensionMethods
             style.borderRightColor = color;
         }
 
-        public static void SetBorderWidth(this IStyle style,StyleFloat width)
+        public static void SetBorderWidth(this IStyle style, StyleFloat size)
         {
-            style.borderTopWidth = width;
-            style.borderBottomWidth = width;
-            style.borderLeftWidth = width;
-            style.borderRightWidth = width;
+            style.borderTopWidth = size;
+            style.borderBottomWidth = size;
+            style.borderLeftWidth = size;
+            style.borderRightWidth = size;
+        }
+
+        public static void SetBorderRadius(this IStyle style, StyleLength size)
+        {
+            style.borderTopLeftRadius = size;
+            style.borderTopRightRadius = size;
+            style.borderBottomLeftRadius = size;
+            style.borderBottomRightRadius = size;
         }
 
         public static void SetPosition(this IStyle style, StyleLength size)

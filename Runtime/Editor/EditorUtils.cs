@@ -110,5 +110,20 @@ namespace Z3.Utils.Editor
             throw EditorOperationExpection();
 #endif
         }
+
+        public static string GetAssetGuid(Object asset)
+        {
+#if UNITY_EDITOR
+            string assetPath = AssetDatabase.GetAssetPath(asset);
+            return AssetDatabase.AssetPathToGUID(assetPath);
+#else
+            throw EditorOperationExpection();
+#endif
+        }
+        public static TObject LoadAssetFromGUID<TObject>(string assetGuid) where TObject : Object
+        {
+            string path = AssetDatabase.GUIDToAssetPath(assetGuid);
+            return AssetDatabase.LoadAssetAtPath<TObject>(path);
+        }
     }
 }

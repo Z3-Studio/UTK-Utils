@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Z3.Utils
 {
-    public class DebugDrawer : Monostate<DebugDrawer>
+    public class DebugDrawer : Singleton<DebugDrawer>
     {
         public static bool Active { get; set; } = true;
 
