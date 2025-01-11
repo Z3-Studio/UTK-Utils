@@ -81,8 +81,11 @@ namespace Z3.Utils
         /// <summary>
         /// Little bit faster than GetCachedComponent if you have tho invoke many times
         /// </summary>
-        public Func<Component> CreateGetter(Type componentType)
+        public Func<object> CreateGetter(Type componentType)
         {
+            if (componentType == typeof(GameObject))
+                return () => GameObject;
+
             Component cachedComponent = null;
 
             return () =>

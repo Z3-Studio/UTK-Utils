@@ -30,5 +30,7 @@ namespace Z3.Utils.ExtensionMethods
             }
             return value;
         }
+
+        public static int ToInt(this bool value) => value ? 1 : 0;
     }
 }

@@ -55,9 +55,6 @@ namespace Z3.Utils.Editor
             throw EditorOperationExpection();
 #endif
         }
-
-        public static InvalidOperationException EditorOperationExpection() => new InvalidOperationException("This operation is only valid in the editor");
-
         public static List<T> GetAllAssets<T>() where T : Object
         {
 #if UNITY_EDITOR
@@ -122,8 +119,15 @@ namespace Z3.Utils.Editor
         }
         public static TObject LoadAssetFromGUID<TObject>(string assetGuid) where TObject : Object
         {
+#if UNITY_EDITOR
             string path = AssetDatabase.GUIDToAssetPath(assetGuid);
             return AssetDatabase.LoadAssetAtPath<TObject>(path);
+#else
+            throw EditorOperationExpection();
+#endif
         }
+
+        public static InvalidOperationException EditorOperationExpection() => new InvalidOperationException("This operation is only valid in the editor");
+
     }
 }

@@ -11,6 +11,11 @@ namespace Z3.Utils
 
         private static Dictionary<string, GizmosHandler> gizmosHandler = new();
 
+        private void OnDestroy()
+        {
+            gizmosHandler.Clear();
+        }
+
         private static void Add(Action drawMethod, float duration, string key)
         {
             if (!Application.isPlaying) // TODO: Review it

@@ -39,6 +39,14 @@ namespace Z3.Utils.ExtensionMethods
             return (T)Enum.Parse(typeof(T), value);
         }
 
+        public static T TryConvertToEnum<T>(this string value, T defaultValue = default) where T : Enum
+        {
+            if (Enum.TryParse(typeof(T), value, true, out object result))
+                return (T)result;
+
+            return defaultValue;
+        }
+
         public static string AddRichTextAlign(this string text, TextAlign alignType)
         {
             string align = alignType.ToString().ToLower();

@@ -115,5 +115,7 @@ namespace Z3.Utils.ExtensionMethods
             range.y = aux;
             return range;
         }
+
+        public static Vector3 ToVectorXZ(this Vector2 range, float y = 0f) => new(range.x, y, range.y);
     }
 }

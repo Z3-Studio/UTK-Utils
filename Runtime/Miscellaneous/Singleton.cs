@@ -9,7 +9,7 @@ namespace Z3.Utils
     {
         protected static T Instance { get; private set; }
 
-        private void Awake()
+        protected void Awake()
         {
             if (Instance != null)
             {

@@ -25,6 +25,11 @@ namespace Z3.Utils.ExtensionMethods
             return angle < 0 ? angle + 360 : angle;
         }
 
+        public static float Remap(this float value, Vector2 minMaxIn, Vector2 minMaxOut)
+        {
+            return Remap(value, minMaxIn.x, minMaxIn.y, minMaxOut.x, minMaxOut.y);
+        }
+
         public static float Remap(this float value, float minIn, float maxIn, float minOut, float maxOut)
         {
             return (value - minIn) / (maxIn - minIn) * (maxOut - minOut) + minOut;

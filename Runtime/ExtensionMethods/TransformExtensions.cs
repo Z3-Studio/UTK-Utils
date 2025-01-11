@@ -71,5 +71,20 @@ namespace Z3.Utils.ExtensionMethods
             rect.GetWorldCorners(corners);
             return corners;
         }
+
+        public static Transform FindInChildren(this Transform parent, string name)
+        {
+            if (parent.name == name)
+                return parent;
+
+            foreach (Transform child in parent)
+            {
+                Transform result = FindInChildren(child, name);
+                if (result)
+                    return result;
+            }
+
+            return null;
+        }
     }
 }
