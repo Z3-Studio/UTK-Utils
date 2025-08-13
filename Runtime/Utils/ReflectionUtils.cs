@@ -260,5 +260,26 @@ namespace Z3.Utils
 
             return memberList;
         }
+
+        public static string TypeToNiceString(Type type)
+        {
+            if (type == null)
+                return "Null Type";
+
+            if (type.IsGenericType)
+            {
+                if (type.FullName != null && type.FullName.StartsWith("System.ValueTuple"))
+                    return "(" + string.Join(", ", type.GetGenericArguments().Select(TypeToNiceString)) + ")";
+
+                var typeName = type.Name;
+                var backtickIndex = typeName.IndexOf('`');
+                if (backtickIndex > 0)
+                    typeName = typeName.Substring(0, backtickIndex);
+
+                return $"{typeName}<{string.Join(", ", type.GetGenericArguments().Select(TypeToNiceString))}>";
+            }
+
+            return type.Name;
+        }
     }
 }
