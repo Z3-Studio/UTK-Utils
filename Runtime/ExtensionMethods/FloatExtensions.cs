@@ -5,6 +5,11 @@ namespace Z3.Utils.ExtensionMethods
 {
     public static class FloatExtensions
     {
+        public static TimeSpan SecondsToMiliseconds(this float seconds)
+        {
+            return TimeSpan.FromSeconds(seconds);
+        }
+
         public static float RoundTo(this float value, int decimalPlaces)
         {
             float multiplier = Mathf.Pow(10f, decimalPlaces);

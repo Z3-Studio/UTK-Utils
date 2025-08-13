@@ -1,5 +1,4 @@
-﻿using System.Globalization;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
 namespace Z3.Utils
 {
@@ -52,22 +51,6 @@ namespace Z3.Utils
             }
 
             return result;
-
-            if (string.IsNullOrEmpty(value))
-                return string.Empty;
-
-            string withoutUnderscores = value.Replace('_', ' ');
-
-            // "WingLeft" -> "Wing Left".
-            string withSpaces1 = Regex.Replace(withoutUnderscores, @"(\P{Ll})(\P{Ll}\p{Ll})", "$1 $2");
-            // "WWing" -> "W Wing".
-            string withSpaces2 = Regex.Replace(withSpaces1, @"(\p{Ll})(\P{Ll})", "$1 $2");
-
-            // "space Caps" -> "Space Caps".
-            TextInfo textInfo = CultureInfo.InvariantCulture.TextInfo;
-            string title = textInfo.ToTitleCase(withSpaces2);
-
-            return title;
         }
     }
 }

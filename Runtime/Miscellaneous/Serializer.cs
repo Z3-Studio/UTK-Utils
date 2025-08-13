@@ -4,6 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace Z3.Utils
 {
@@ -19,6 +21,15 @@ namespace Z3.Utils
         {
             TypeNameHandling = TypeNameHandling.All,
             Formatting = Formatting.Indented,
+            ContractResolver = new WritablePropertiesOnlyResolver()
+        };
+
+        private static JsonSerializerSettings CreateSettingsWithReferences(Type type, List<Object> refs) => new()
+        {
+            TypeNameAssemblyFormatHandling = TypeNameAssemblyFormatHandling.Full,
+            TypeNameHandling = TypeNameHandling.All,
+            Formatting = Formatting.None, // None because is impossible to read in a string
+            Converters = new List<JsonConverter> { new UnityObjectIndexConverter(type, refs) },
             ContractResolver = new WritablePropertiesOnlyResolver()
         };
 
@@ -46,6 +57,25 @@ namespace Z3.Utils
             using StringReader stringReader = new StringReader(data);
             using CustomReader jsonReader = new CustomReader(stringReader);
             return JsonSerializer.CreateDefault(ReadableSettings).Deserialize<T>(jsonReader);
+        }
+
+        // Serialization with UnityEngine.Object references
+        public static T FromJson<T>(string data, List<Object> refs) => (T)FromJson(data, typeof(T), refs);
+        public static string ToJson<T>(T data, List<Object> refs) => ToJson(data, typeof(T), refs);
+        public static string ToJson(object data, Type type, List<Object> refs)
+        {
+            refs.Clear(); // Clear to refresh references
+            JsonSerializerSettings settings = CreateSettingsWithReferences(type, refs);
+            return JsonConvert.SerializeObject(data, type, settings);
+        }
+
+        public static object FromJson(string data, Type type, List<Object> refs)
+        {
+            JsonSerializerSettings settings = CreateSettingsWithReferences(type, refs);
+
+            using StringReader stringReader = new StringReader(data);
+            using CustomReader jsonReader = new CustomReader(stringReader);
+            return JsonSerializer.CreateDefault(settings).Deserialize(jsonReader, type);
         }
 
         /// <summary>
@@ -103,6 +133,67 @@ namespace Z3.Utils
                 }
 
                 return ret;
+            }
+        }
+
+        /// <summary>
+        /// Used to serialize UnityEngine.Object references as index based in a list.
+        /// </summary>
+        public sealed class UnityObjectIndexConverter : JsonConverter
+        {
+            private readonly List<Object> table;
+            private readonly bool forceObject;
+
+            public UnityObjectIndexConverter(Type type, List<Object> table)
+            {
+                this.table = table;
+                forceObject = CanConvert(type); // If root type is Object, we will force to write $ObjectReference
+            }
+
+            public override bool CanConvert(Type t) => typeof(Object).IsAssignableFrom(t);
+
+            public override void WriteJson(JsonWriter w, object value, JsonSerializer s)
+            {
+                Object uobj = value as Object;
+                if (ReferenceEquals(uobj, null) || uobj == null) 
+                { 
+                    w.WriteNull(); 
+                    return; 
+                }
+
+                table.Add(uobj);
+                if (forceObject)
+                {
+                    w.WriteValue("$ObjectReference");
+                }
+                else
+                {
+                    w.WriteValue(table.Count - 1);
+                }
+            }
+
+            public override object ReadJson(JsonReader r, Type t, object existingValue, JsonSerializer s)
+            {
+                if (r.TokenType == JsonToken.Null) 
+                    return null;
+
+                if (r.TokenType != JsonToken.Integer && !forceObject)
+                    throw new JsonSerializationException($"Expected integer or 'ref' token, but got {r.TokenType} instead.");
+
+                int index = 0;
+                if (r.TokenType == JsonToken.Integer)
+                {
+                    index = Convert.ToInt32(r.Value);
+                }
+
+                if (index < 0 || index >= table.Count)
+                {
+                    Debug.LogError($"CRITICAL ERROR: You are trying to get an object outside of the table range: {index}");
+                    return null;
+                }
+
+                return table[index];
+
             }
         }
     }
