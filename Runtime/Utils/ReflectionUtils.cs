@@ -55,6 +55,11 @@ namespace Z3.Utils
             return GetAllMembers(target, (t) => t.GetFields(InstanceDeclared));
         }
 
+        public static List<PropertyInfo> GetAllProperties(object target)
+        {
+            return GetAllMembers(target, (t) => t.GetProperties(InstanceDeclared));
+        }
+
         public static List<MemberInfo> GetAllMembers(object target, BindingFlags bindingFlags = InstanceDeclared, string ignoreNamespace = null)
         {
             return GetAllMembers(target, (t) => t.GetMembers(bindingFlags));
@@ -65,9 +70,21 @@ namespace Z3.Utils
             return GetAllFields(target).Where(f => typeof(T).IsAssignableFrom(f.FieldType));
         }
 
+        public static IEnumerable<PropertyInfo> GetAllPropertiesTypeOf<T>(object target)
+        {
+            return GetAllProperties(target).Where(p => typeof(T).IsAssignableFrom(p.PropertyType));
+        }
+
         public static IEnumerable<T> GetAllFieldValuesTypeOf<T>(object target)
         {
             return GetAllFieldsTypeOf<T>(target).GetValues<T>(target);
+        }
+
+        public static IEnumerable<T> GetAllFieldAndPropertyValuesTypeOf<T>(object target)
+        {
+            IEnumerable<T> fields = GetAllFieldsTypeOf<T>(target).GetValues<T>(target);
+            IEnumerable<T> properties = GetAllPropertiesTypeOf<T>(target).GetValues<T>(target);
+            return fields.Concat(properties);
         }
 
         public static Type GetGenericArgumentFromBaseType(Type type, Type genericType)
@@ -280,6 +297,20 @@ namespace Z3.Utils
             }
 
             return type.Name;
+        }
+
+        /// <summary>
+        /// Returns the default value for the specified <see cref="Type"/>.
+        /// Example: false, 0, struct default, null objects
+        /// </summary>
+        public static object GetDefaultValue(Type type)
+        {
+            if (type.IsValueType)
+            {
+                return Activator.CreateInstance(type);
+            }
+
+            return null;
         }
     }
 }

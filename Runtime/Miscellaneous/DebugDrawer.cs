@@ -25,9 +25,12 @@ namespace Z3.Utils
 
             key ??= Guid.NewGuid().ToString();
 
-            GizmosHandler newHandle = new GizmosHandler(drawMethod, duration);
+            if (gizmosHandler.TryGetValue(key, out GizmosHandler existing))
+            {
+                existing.Dispose();
+            }
 
-            gizmosHandler.Add(key, newHandle);
+            gizmosHandler[key] = new GizmosHandler(drawMethod, duration);
 
             if (Instance != null)
                 return;
@@ -53,9 +56,9 @@ namespace Z3.Utils
             }
         }
 
-        public static void DrawSphere(Vector3 position, float size, float duration = 0f, string key = null) => DrawSphere(position, size, Color.magenta, duration, key);
+        public static void DrawSphere(Vector3 position, float size = .5f, float duration = 1f, string key = null) => DrawSphere(position, size, Color.magenta, duration, key);
 
-        public static void DrawSphere(Vector3 position, float size, Color color, float duration = 0f, string key = null)
+        public static void DrawSphere(Vector3 position, float size, Color color, float duration = 1f, string key = null)
         {
             Add(Draw, duration, key);
 
@@ -66,10 +69,9 @@ namespace Z3.Utils
             }
         }
 
-        public static void DrawRaycast(Vector3 origin, Vector3 direction, float distance, int layer, float duration = 0f, string key = null)
+        public static void DrawRaycast(Transform reference, RaycastHit raycastHit, float distance, float duration = 0f, string key = null)
         {
-            PhysicsUtils.RaycastWithSafeOrigin(origin, direction, out RaycastHit raycastHit, distance, layer);
-            DrawRaycast(origin, direction, raycastHit, distance, duration, key);
+            DrawRaycast(reference.position, reference.forward, raycastHit, distance, Color.green, Color.red, duration, key);
         }
 
         public static void DrawRaycast(Vector3 origin, Vector3 direction, RaycastHit raycastHit, float distance, float duration = 0f, string key = null)
@@ -102,6 +104,19 @@ namespace Z3.Utils
                     Gizmos.DrawWireSphere(origin, 0.06f);
                     Gizmos.DrawLine(origin, endPoint);
                 }
+            }
+        }
+
+        public static void DrawLine(Vector3 from, Vector3 to, float duration = 1f, string key = null) => DrawLine(from, to, Color.magenta, duration, key);
+
+        public static void DrawLine(Vector3 from, Vector3 to, Color color, float duration = 1f, string key = null)
+        {
+            Add(Draw, duration, key);
+
+            void Draw()
+            {
+                Gizmos.color = color;
+                Gizmos.DrawLine(from, to);
             }
         }
     }

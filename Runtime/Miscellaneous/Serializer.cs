@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -83,10 +84,48 @@ namespace Z3.Utils
         /// </summary>
         private class WritablePropertiesOnlyResolver : DefaultContractResolver
         {
+            /// <summary>
+            /// Force read values
+            /// </summary>
             protected override IList<JsonProperty> CreateProperties(Type type, MemberSerialization memberSerialization)
             {
                 IList<JsonProperty> props = base.CreateProperties(type, memberSerialization);
-                return props.Where(p => p.Writable).ToList();
+                return props.Where(p => p.Readable || p.Writable).ToList();
+            }
+
+            /// <summary>
+            /// Force write values (and read as well?)
+            /// </summary>
+            protected override JsonProperty CreateProperty(MemberInfo member, MemberSerialization memberSerialization)
+            {
+                JsonProperty prop = base.CreateProperty(member, memberSerialization);
+
+                if (member is PropertyInfo propertyInfo && propertyInfo.GetCustomAttribute<SerializeField>() != null)
+                {
+                    MethodInfo getter = propertyInfo.GetGetMethod(true);
+                    MethodInfo setter = propertyInfo.GetSetMethod(true);
+                    if (getter != null && setter != null)
+                    {
+                        prop.Readable = true;
+                        prop.Writable = true;
+                    }
+
+                    // Ensure we can read via non-public getter as well
+                    //MethodInfo getter = propertyInfo.GetGetMethod(true);
+                    //if (getter != null && prop.Readable == false)
+                    //{
+                    //    prop.Readable = true;
+                    //}
+
+                    //// If there is a non-public setter, allow writing
+                    //MethodInfo setter = propertyInfo.GetSetMethod(true);
+                    //if (setter != null && prop.Writable == false)
+                    //{
+                    //    prop.Writable = true;
+                    //}
+                }
+
+                return prop;
             }
         }
 

@@ -28,6 +28,12 @@ namespace Z3.Utils.ExtensionMethods
         }
 
         /// <summary> Prevents Event system bugs </summary>
+        public static void SelectWithDelay(this MonoBehaviour monoBehaviour)
+        {
+            monoBehaviour.StartCoroutine(CallNextFrame(() => EventSystem.current.SetSelectedGameObject(monoBehaviour.gameObject)));
+        }
+
+        /// <summary> Prevents Event system bugs </summary>
         public static void SelectWithDelay(this Selectable selectable)
         {
             selectable.StartCoroutine(CallNextFrame(selectable.Select));

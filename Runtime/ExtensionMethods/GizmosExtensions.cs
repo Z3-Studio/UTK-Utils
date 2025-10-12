@@ -102,21 +102,13 @@ namespace Z3.Utils.ExtensionMethods
 
         public static void DrawLineBetween(this Transform transform, Vector2 avarageDistance, Color color)
         {
-            Vector2 pointA = new Vector2()
-            {
-                x = transform.position.x + avarageDistance.x,
-                y = transform.position.y
-            };
-            Vector2 pointB = new Vector2()
-            {
-                x = transform.position.x + avarageDistance.y,
-                y = transform.position.y
-            };
+            Vector3 minDistance = transform.position + transform.forward * avarageDistance.x;
+            Vector3 maxDistance = transform.position + transform.forward * avarageDistance.y;
 
             Gizmos.color = color;
-            Gizmos.DrawLine(pointA, pointB);
-            DrawVerticalLine(pointA);
-            DrawVerticalLine(pointB);
+            Gizmos.DrawLine(minDistance, maxDistance);
+            DrawVerticalLine(minDistance);
+            DrawVerticalLine(maxDistance);
         }
 
         public static void DrawAverageLine(this Transform transform, Vector2 avarageDistance)
@@ -126,23 +118,23 @@ namespace Z3.Utils.ExtensionMethods
 
         public static void DrawAverageLine(this Transform transform, Vector2 avarageDistance, Color firstLineColor, Color secondLineColor)
         {
-            Vector2 pointA = transform.position;
-            Vector2 pointB = new Vector2(pointA.x + avarageDistance.x, pointA.y);
-            Vector2 pointC = new Vector2(pointA.x + avarageDistance.y, pointA.y);
+            Vector3 from = transform.position;
+            Vector3 minDistance = from + transform.forward * avarageDistance.x;
+            Vector3 maxDistance = from + transform.forward * avarageDistance.y;
 
             Gizmos.color = firstLineColor;
-            Gizmos.DrawLine(pointA, pointB);
-            DrawVerticalLine(pointB);
+            Gizmos.DrawLine(from, minDistance);
+            DrawVerticalLine(minDistance);
 
             Gizmos.color = secondLineColor;
-            Gizmos.DrawLine(pointB, pointC);
-            DrawVerticalLine(pointC);
+            Gizmos.DrawLine(minDistance, maxDistance);
+            DrawVerticalLine(maxDistance);
         }
 
-        public static void DrawVerticalLine(Vector2 point, float size = 1f)
+        public static void DrawVerticalLine(Vector3 point, float size = 1f)
         {
             float half = size / 2f;
-            Gizmos.DrawLine(new Vector2(point.x, point.y + half), new Vector2(point.x, point.y - half)); // Vertical
+            Gizmos.DrawLine(new Vector3(point.x, point.y + half, point.z), new Vector3(point.x, point.y - half, point.z)); // Vertical
         }
 
         /// <summary>

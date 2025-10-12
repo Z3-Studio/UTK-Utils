@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System;
+using System.Collections.Generic;
+using UnityEngine;
 using Z3.Utils.ExtensionMethods;
 
 namespace Z3.Utils
@@ -33,6 +35,42 @@ namespace Z3.Utils
             float y = Mathf.SmoothStep(start.y, end.y, t);
             float z = Mathf.SmoothStep(start.z, end.z, t);
             return new Vector3(x, y, z);
+        }
+
+        public static T GetClosest<T>(IEnumerable<T> list, Vector3 from, Func<T, Vector3> getPos, T defaultValue = default)
+        {
+            T nearestNode = defaultValue;
+            float nearestDistance = float.MaxValue;
+
+            foreach (T node in list)
+            {
+                float distance = (getPos.Invoke(node) - from).sqrMagnitude;
+                if (distance < nearestDistance)
+                {
+                    nearestDistance = distance;
+                    nearestNode = node;
+                }
+            }
+
+            return nearestNode;
+        }
+
+        public static T GetClosest<T>(IEnumerable<T> list, Vector2Int from, Func<T, Vector2Int> getPos, T defaultValue = default)
+        {
+            T nearestNode = defaultValue;
+            float nearestDistance = float.MaxValue;
+
+            foreach (T node in list)
+            {
+                float distance = (getPos.Invoke(node) - from).sqrMagnitude;
+                if (distance < nearestDistance)
+                {
+                    nearestDistance = distance;
+                    nearestNode = node;
+                }
+            }
+
+            return nearestNode;
         }
     }
 }

@@ -39,6 +39,11 @@ namespace Z3.Utils.ExtensionMethods
             return values.Select(t => (T)t.GetValue(target)).ToList();
         }
 
+        public static IEnumerable<T> GetValues<T>(this IEnumerable<PropertyInfo> values, object target)
+        {
+            return values.Select(t => (T)t.GetValue(target)).ToList();
+        }
+
         public static T GetValue<T>(this FieldInfo fieldInfo, object target)
         {
             return (T)fieldInfo.GetValue(target);

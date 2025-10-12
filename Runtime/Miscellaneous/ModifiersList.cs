@@ -3,9 +3,16 @@ using System.Collections.Generic;
 
 namespace Z3.Utils
 {
+    /// <summary>
+    /// Useful for handling situations where multiple systems may enable or disable a shared state.
+    /// Triggers <see cref="OnChangeState"/> when the list becomes empty or non-empty.
+    /// </summary>
+    /// <remarks>
+    /// Example: Different systems blocking player input
+    /// </remarks>
     public class ModifiersList<T>
     {
-        public Action<bool> OnChangeState;
+        public event Action<bool> OnChangeState;
         public bool HasActiveModifier => modifierList.Count > 0;
 
         private readonly List<T> modifierList = new List<T>();

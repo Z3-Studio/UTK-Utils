@@ -1,4 +1,5 @@
 using System;
+using System.Reflection;
 using UnityEngine;
 
 namespace Z3.Utils.ExtensionMethods
@@ -24,6 +25,17 @@ namespace Z3.Utils.ExtensionMethods
         }
 
         /// <summary> Similar than UnityEditor.ObjectNames.NicifyVariableName </summary>
+        public static string GetLabelName(this MemberInfo memberInfo)
+        {
+            string name = memberInfo.Name;
+            if (name.Contains(">k__BackingField"))
+            {
+                name = name.Substring(1).Replace(">k__BackingField", string.Empty);
+            }
+
+            return StringFormater.GetNiceString(name);
+        }
+
         public static string GetNiceString(this string value)
         {
             return StringFormater.GetNiceString(value);
@@ -80,7 +92,7 @@ namespace Z3.Utils.ExtensionMethods
         /// Ignore everything before the first '_'
         /// </summary>
         /// <returns>Before: Name_SubName -> After: SubName</returns>
-        public static string StringReduction(this string value, char matchCharacter = '_')
+        public static string StringReductionFirst(this string value, char matchCharacter = '_')
         {
             string shortName = string.Empty;
             bool findedUnderscore = false;
@@ -103,6 +115,25 @@ namespace Z3.Utils.ExtensionMethods
             }
 
             return value;
+        }
+
+        public static string StringReductionAll(this string value, char matchCharacter = '_')
+        {
+            string shortName = string.Empty;
+
+            foreach (char c in value)
+            {
+                if (c == matchCharacter)
+                {
+                    shortName = string.Empty;
+                }
+                else
+                {
+                    shortName += c;
+                }
+            }
+
+            return shortName;
         }
 
         /// <summary>

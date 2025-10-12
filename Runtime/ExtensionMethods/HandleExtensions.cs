@@ -23,11 +23,11 @@ namespace Z3.Utils.ExtensionMethods
         public static void DrawWireArc(this Transform transform, float openingAngle, float distance, Color color)
         {
             Vector3 normal = GetArcDirection(transform, openingAngle);
-            DrawWireArc(transform.position, transform.forward, normal, openingAngle, distance, color);
+            DrawWireArc(transform.position, transform.up, normal, openingAngle, distance, color);
         }
         #endregion
 
-        private static void DrawWireArc(Vector3 position, Vector3 axis, Vector3 normal, float openingAngle, float distance, Color color)
+        public static void DrawWireArc(Vector3 position, Vector3 axis, Vector3 normal, float openingAngle, float distance, Color color)
         {
 #if UNITY_EDITOR
             Color lastHandlesColor = Handles.color;

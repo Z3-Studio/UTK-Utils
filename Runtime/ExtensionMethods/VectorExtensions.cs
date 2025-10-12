@@ -75,6 +75,16 @@ namespace Z3.Utils.ExtensionMethods
             };
         }
 
+        public static Vector3 Divide(this Vector3 a, Vector3 b)
+        {
+            return new Vector3()
+            {
+                x = a.x / b.x,
+                y = a.y / b.y,
+                z = a.z / b.z,
+            };
+        }
+
         public static int RandomRangeAround(this Vector2 range)
         {
             float value = Random.Range(range.x, range.y);
