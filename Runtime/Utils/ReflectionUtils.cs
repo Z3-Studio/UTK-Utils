@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
-using System;
 using System.Reflection;
 using Z3.Utils.ExtensionMethods;
 
@@ -311,6 +311,20 @@ namespace Z3.Utils
             }
 
             return null;
+        }
+
+        public static T ShallowCopySerialized<T>(T original) where T : class
+        {
+            Type type = original.GetType();
+            T copy = (T)Activator.CreateInstance(type);
+
+            foreach (FieldInfo field in type.GetSerializedFields())
+            {
+                object value = field.GetValue(original);
+                field.SetValue(copy, value);
+            }
+
+            return copy;
         }
     }
 }

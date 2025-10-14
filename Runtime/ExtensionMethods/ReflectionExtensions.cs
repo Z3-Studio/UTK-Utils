@@ -1,7 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
-using System;
 using System.Reflection;
+using UnityEngine;
 
 namespace Z3.Utils.ExtensionMethods
 {
@@ -67,6 +68,19 @@ namespace Z3.Utils.ExtensionMethods
         public static object GetDefaultValueForType(this Type type)
         {
             return type.IsValueType ? Activator.CreateInstance(type) : null;
+        }
+
+        public static IEnumerable<FieldInfo> GetSerializedFields(this Type type)
+        {
+            FieldInfo[] fields = type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+
+            foreach (FieldInfo field in fields)
+            {
+                if (field.IsPublic || Attribute.IsDefined(field, typeof(SerializeField)))
+                {
+                    yield return field;
+                }
+            }
         }
     }
 }
