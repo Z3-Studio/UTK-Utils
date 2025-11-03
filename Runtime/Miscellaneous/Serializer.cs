@@ -100,29 +100,26 @@ namespace Z3.Utils
             {
                 JsonProperty prop = base.CreateProperty(member, memberSerialization);
 
-                if (member is PropertyInfo propertyInfo && propertyInfo.GetCustomAttribute<SerializeField>() != null)
+                if (member is PropertyInfo propertyInfo)
                 {
-                    MethodInfo getter = propertyInfo.GetGetMethod(true);
-                    MethodInfo setter = propertyInfo.GetSetMethod(true);
-                    if (getter != null && setter != null)
+                    // backing field: <PropertyName>k__BackingField
+                    FieldInfo backingField = propertyInfo.DeclaringType.GetField($"<{propertyInfo.Name}>k__BackingField", BindingFlags.Instance | BindingFlags.NonPublic);
+
+                    bool hasSerializeField =
+                        backingField != null &&
+                        backingField.GetCustomAttribute<SerializeField>() != null;
+
+                    if (hasSerializeField)
                     {
-                        prop.Readable = true;
-                        prop.Writable = true;
+                        MethodInfo getter = propertyInfo.GetGetMethod(true);
+                        MethodInfo setter = propertyInfo.GetSetMethod(true);
+
+                        if (getter != null && setter != null)
+                        {
+                            prop.Readable = true;
+                            prop.Writable = true;
+                        }
                     }
-
-                    // Ensure we can read via non-public getter as well
-                    //MethodInfo getter = propertyInfo.GetGetMethod(true);
-                    //if (getter != null && prop.Readable == false)
-                    //{
-                    //    prop.Readable = true;
-                    //}
-
-                    //// If there is a non-public setter, allow writing
-                    //MethodInfo setter = propertyInfo.GetSetMethod(true);
-                    //if (setter != null && prop.Writable == false)
-                    //{
-                    //    prop.Writable = true;
-                    //}
                 }
 
                 return prop;
