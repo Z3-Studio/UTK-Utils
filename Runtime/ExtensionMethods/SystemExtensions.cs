@@ -5,7 +5,6 @@ namespace Z3.Utils.ExtensionMethods
 {
     public static class SystemExtensions
     {
-        private const string Greek = "el-GR";
         private const string DefaultTimeFormat = "yyyy-MM-ddTHH:mm:ss.fffZ";
 
         public static Guid? ToNullableGuid(this string input)
@@ -85,8 +84,13 @@ namespace Z3.Utils.ExtensionMethods
         /// <returns> Ex: 1.000.000 </returns>
         public static string FormatToThousands(this int value)
         {
-            CultureInfo elGR = CultureInfo.CreateSpecificCulture(Greek);
-            return value.ToString("0,0", elGR);
+            NumberFormatInfo thousandFormat = new()
+            {
+                NumberGroupSeparator = ".",
+                NumberDecimalSeparator = ","
+            };
+
+            return value.ToString("#,0", thousandFormat);
         }
     }
 }

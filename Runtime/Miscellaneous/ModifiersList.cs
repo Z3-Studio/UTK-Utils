@@ -15,7 +15,7 @@ namespace Z3.Utils
         public event Action<bool> OnChangeState;
         public bool HasActiveModifier => modifierList.Count > 0;
 
-        private readonly List<T> modifierList = new List<T>();
+        private readonly List<T> modifierList = new();
 
         public void Clear()
         {
@@ -59,6 +59,16 @@ namespace Z3.Utils
             {
                 OnChangeState?.Invoke(false);
             }
+        }
+
+        public bool ContainsModifier(T modifier)
+        {
+            return modifierList.Contains(modifier);
+        }
+
+        public bool ContainsUniqueModifier(T modifier)
+        {
+            return modifierList.Count == 1 && modifierList.Contains(modifier);
         }
     }
 }
