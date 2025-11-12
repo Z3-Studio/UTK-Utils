@@ -12,13 +12,13 @@ namespace Z3.Utils
 {
     public static class Serializer
     {
-        private static JsonSerializerSettings Settings => new JsonSerializerSettings
+        private static JsonSerializerSettings Settings => new()
         {
             TypeNameHandling = TypeNameHandling.All,
             ContractResolver = new WritablePropertiesOnlyResolver()
         };
 
-        private static JsonSerializerSettings ReadableSettings => new JsonSerializerSettings
+        private static JsonSerializerSettings ReadableSettings => new()
         {
             TypeNameHandling = TypeNameHandling.All,
             Formatting = Formatting.Indented,
@@ -31,7 +31,7 @@ namespace Z3.Utils
             TypeNameHandling = TypeNameHandling.All,
             Formatting = Formatting.None, // None because is impossible to read in a string
             Converters = new List<JsonConverter> { new UnityObjectIndexConverter(type, refs) },
-            ContractResolver = new WritablePropertiesOnlyResolver()
+            ContractResolver = new UnitySerializablePropertyResolver()
         };
 
         public static string ToJson<T>(T data)
@@ -80,9 +80,24 @@ namespace Z3.Utils
         }
 
         /// <summary>
-        /// Used to serialize only writable fields
+        /// Used to serialize writable fields, example Vector3
         /// </summary>
         private class WritablePropertiesOnlyResolver : DefaultContractResolver
+        {
+            /// <summary>
+            /// Force read values
+            /// </summary>
+            protected override IList<JsonProperty> CreateProperties(Type type, MemberSerialization memberSerialization)
+            {
+                IList<JsonProperty> props = base.CreateProperties(type, memberSerialization);
+                return props.Where(p => p.Readable && p.Writable).ToList();
+            }
+        }
+
+        /// <summary>
+        /// If Unity can serialize, you can convert to Json
+        /// </summary>
+        private class UnitySerializablePropertyResolver : DefaultContractResolver
         {
             /// <summary>
             /// Force read values
