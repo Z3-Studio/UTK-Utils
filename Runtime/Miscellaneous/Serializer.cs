@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using UnityEngine;
+using Z3.Utils.ExtensionMethods;
 using Object = UnityEngine.Object;
 
 namespace Z3.Utils
@@ -117,8 +118,7 @@ namespace Z3.Utils
 
                 if (member is PropertyInfo propertyInfo)
                 {
-                    // backing field: <PropertyName>k__BackingField
-                    FieldInfo backingField = propertyInfo.DeclaringType.GetField($"<{propertyInfo.Name}>k__BackingField", BindingFlags.Instance | BindingFlags.NonPublic);
+                    FieldInfo backingField = propertyInfo.GetBackingField();
 
                     bool hasSerializeField =
                         backingField != null &&
