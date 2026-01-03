@@ -22,5 +22,10 @@ namespace Z3.Utils
         }
 
         protected virtual void AfterAwake() { }
+
+        protected virtual void OnDestroy()
+        {
+            Instance = null;
+        }
     }
 }

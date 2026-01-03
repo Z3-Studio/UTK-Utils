@@ -85,7 +85,7 @@ namespace Z3.Utils.ExtensionMethods
 
         public static FieldInfo GetBackingField(this PropertyInfo propertyInfo)
         {
-            return propertyInfo.DeclaringType.GetField($"<{propertyInfo.Name}>k__BackingField", BindingFlags.Instance | BindingFlags.NonPublic);
+            return propertyInfo.DeclaringType.GetField($"<{propertyInfo.Name}>k__BackingField", ReflectionUtils.InstanceAccess);
         }
 
         public static FieldInfo GetBackingField(this Type parentType, string memberName)
@@ -94,8 +94,8 @@ namespace Z3.Utils.ExtensionMethods
             int endIndex = memberName.Length - index - ">k__BackingField".Length;
             string declaredName = memberName.Substring(index, endIndex);
 
-            PropertyInfo propertyField = parentType.GetProperty(declaredName);
-            return propertyField.DeclaringType.GetField(memberName, BindingFlags.Instance | BindingFlags.NonPublic);
+            PropertyInfo propertyField = parentType.GetProperty(declaredName, ReflectionUtils.InstanceAccess);
+            return propertyField.DeclaringType.GetField(memberName, ReflectionUtils.InstanceAccess);
         }
     }
 }

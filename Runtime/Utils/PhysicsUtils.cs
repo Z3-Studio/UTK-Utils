@@ -21,13 +21,20 @@ namespace Z3.Utils
 
         public static bool RaycastWithSafeOrigin(Transform reference, out RaycastHit raycastHit, float max = float.PositiveInfinity, int layer = -1, float minValue = 0.02f)
         {
-            if (Physics.CheckSphere(reference.position, minValue, layer))
+            return RaycastWithSafeOrigin(reference.position, reference.forward, out raycastHit, max, layer, minValue);
+        }
+
+        public static Collider RaycastWithSafeOrigin2(Transform reference, float max = float.PositiveInfinity, int layer = -1, float minValue = 0.02f)
+        {
+            Collider[] colliders = Physics.OverlapSphere(reference.position, minValue, layer);
+
+            if (colliders.Length > 0)
             {
-                raycastHit = default;
-                return false;
+                return colliders[0];
             }
 
-            return Physics.Raycast(reference.position, reference.forward, out raycastHit, max, layer);
+            Physics.Raycast(reference.position, reference.forward, out RaycastHit raycastHit, max, layer);
+            return raycastHit.collider;
         }
 
         public static bool RaycastWithSafeOrigin_Debug(Transform reference, out RaycastHit raycastHit, float max = float.PositiveInfinity, int layer = -1, float minValue = 0.02f, float duration = 0f, string key = null)

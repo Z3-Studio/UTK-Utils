@@ -19,8 +19,7 @@ namespace Z3.Utils.ExtensionMethods
         /// </summary>
         public static void PlayState(this Animator animator, string stateName, float transition = 0.25f, int layerIndex = 0)
         {
-            AnimatorStateInfo current = animator.GetCurrentAnimatorStateInfo(layerIndex);
-            animator.CrossFade(stateName, transition / current.length, layerIndex);
+            animator.CrossFade(stateName, transition, layerIndex);
         }
 
         public static void PlayOrResetState(this Animator animator, string stateName, float transition = 0.25f, int layerIndex = 0)

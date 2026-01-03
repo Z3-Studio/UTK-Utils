@@ -11,8 +11,9 @@ namespace Z3.Utils
 
         private static Dictionary<string, GizmosHandler> gizmosHandler = new();
 
-        private void OnDestroy()
+        protected override void OnDestroy()
         {
+            base.OnDestroy();
             gizmosHandler.Clear();
         }
 
@@ -107,7 +108,7 @@ namespace Z3.Utils
             }
         }
 
-        public static void DrawLine(Vector3 from, Vector3 to, float duration = 1f, string key = null) => DrawLine(from, to, Color.magenta, duration, key);
+        public static void DrawLine(Vector3 from, Vector3 to, float duration = 0f, string key = null) => DrawLine(from, to, Color.magenta, duration, key);
 
         public static void DrawLine(Vector3 from, Vector3 to, Color color, float duration = 1f, string key = null)
         {
@@ -124,14 +125,14 @@ namespace Z3.Utils
     public class GizmosHandler : IDisposable
     {
         private Action drawMethod;
-        private float disposeTime;
+        private readonly float disposeTime;
 
         public bool Finish => Time.time >= disposeTime;
 
         public GizmosHandler(Action drawMethod, float duration)
         {
             this.drawMethod = drawMethod;
-            disposeTime = Time.time + duration;
+            disposeTime = Time.time + Mathf.Max(duration, 0.001f);
         }
 
         public void Draw() => drawMethod();
