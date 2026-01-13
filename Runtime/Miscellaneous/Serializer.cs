@@ -13,18 +13,20 @@ namespace Z3.Utils
 {
     public static class Serializer
     {
-        private static JsonSerializerSettings Settings => new()
+        private static readonly JsonSerializerSettings Settings = new()
         {
             TypeNameHandling = TypeNameHandling.All,
             ContractResolver = new WritablePropertiesOnlyResolver()
         };
 
-        private static JsonSerializerSettings ReadableSettings => new()
+        private static readonly JsonSerializerSettings ReadableSettings = new()
         {
             TypeNameHandling = TypeNameHandling.All,
             Formatting = Formatting.Indented,
             ContractResolver = new WritablePropertiesOnlyResolver()
         };
+
+        private static readonly UnitySerializablePropertyResolver UnitySerializable = new();
 
         private static JsonSerializerSettings CreateSettingsWithReferences(Type type, List<Object> refs) => new()
         {
@@ -32,8 +34,17 @@ namespace Z3.Utils
             TypeNameHandling = TypeNameHandling.All,
             Formatting = Formatting.None, // None because is impossible to read in a string
             Converters = new List<JsonConverter> { new UnityObjectIndexConverter(type, refs) },
-            ContractResolver = new UnitySerializablePropertyResolver()
+            ContractResolver = UnitySerializable
         };
+
+        private static readonly JsonSerializer FromJsonSerializer;
+        private static readonly JsonSerializer ToJsonSerializer;
+
+        static Serializer()
+        {
+            FromJsonSerializer = JsonSerializer.CreateDefault(Settings);
+            ToJsonSerializer = JsonSerializer.CreateDefault(ReadableSettings);
+        }
 
         public static string ToJson<T>(T data)
         {
@@ -49,16 +60,18 @@ namespace Z3.Utils
 
         public static T FromJson<T>(string data)
         {
-            using StringReader stringReader = new StringReader(data);
-            using CustomReader jsonReader = new CustomReader(stringReader);
-            return JsonSerializer.CreateDefault(Settings).Deserialize<T>(jsonReader);
+            using StringReader stringReader = new(data);
+            using CustomReader jsonReader = new(stringReader);
+
+            return FromJsonSerializer.Deserialize<T>(jsonReader);
         }
 
         public static T FromReadableJson<T>(string data)
         {
-            using StringReader stringReader = new StringReader(data);
-            using CustomReader jsonReader = new CustomReader(stringReader);
-            return JsonSerializer.CreateDefault(ReadableSettings).Deserialize<T>(jsonReader);
+            using StringReader stringReader = new(data);
+            using CustomReader jsonReader = new(stringReader);
+
+            return ToJsonSerializer.Deserialize<T>(jsonReader);
         }
 
         // Serialization with UnityEngine.Object references
@@ -75,8 +88,8 @@ namespace Z3.Utils
         {
             JsonSerializerSettings settings = CreateSettingsWithReferences(type, refs);
 
-            using StringReader stringReader = new StringReader(data);
-            using CustomReader jsonReader = new CustomReader(stringReader);
+            using StringReader stringReader = new(data);
+            using CustomReader jsonReader = new(stringReader);
             return JsonSerializer.CreateDefault(settings).Deserialize(jsonReader, type);
         }
 
@@ -153,52 +166,49 @@ namespace Z3.Utils
 
             public override bool Read()
             {
-                bool ret = base.Read();
-
                 // TODO: Review long and double deserialization
-                if (ValueType == typeof(long) && Value is long longValue)
-                {
-                    if (TokenType == JsonToken.Integer)
-                    {
-                        bool valueIsInsideBoundaries = longValue <= int.MaxValue && longValue >= int.MinValue;
+                bool result = base.Read();
 
-                        if (valueIsInsideBoundaries)
-                        {
-                            int newValue = checked((int)longValue);
-                            SetToken(TokenType, newValue, false);
-                        }
-                    }
+                if (TokenType == JsonToken.Integer)
+                {
+                    long longValue = (long)Value;
+                    SetToken(JsonToken.Integer, (int)longValue, false);
                 }
-                else if (ValueType == typeof(double) && Value is double doubleValue)
+                else if (TokenType == JsonToken.Float)
                 {
-                    if (TokenType == JsonToken.Float)
-                    {
-                        bool valueIsInsideBoundaries = doubleValue <= float.MaxValue && doubleValue >= float.MinValue;
-
-                        if (valueIsInsideBoundaries)
-                        {
-                            float newValue = (float)doubleValue;
-                            SetToken(TokenType, newValue, false);
-                        }
-                    }
+                    double doubleValue = (double)Value;
+                    SetToken(JsonToken.Float, (float)doubleValue, false);
                 }
 
-                return ret;
+                return result;
             }
         }
 
         /// <summary>
-        /// Used to serialize UnityEngine.Object references as index based in a list.
+        /// Used to serialize UnityEngine.Object references as index based in a list. This list must to be serialized by Unity
         /// </summary>
         public sealed class UnityObjectIndexConverter : JsonConverter
         {
             private readonly List<Object> table;
-            private readonly bool forceObject;
+
+            private readonly Action<JsonWriter> writeJsonFunc;
+            private readonly Func<JsonReader, object> readJsonFunc;
 
             public UnityObjectIndexConverter(Type type, List<Object> table)
             {
                 this.table = table;
-                forceObject = CanConvert(type); // If root type is Object, we will force to write $ObjectReference
+                bool forceObject = CanConvert(type); // If root type is Object, we will force to write $ObjectReference
+
+                if (forceObject)
+                {
+                    readJsonFunc = ReadJsonForce;
+                    writeJsonFunc = WriteJsonForce;
+                }
+                else
+                {
+                    readJsonFunc = ReadJsonDefault;
+                    writeJsonFunc = WriteJsonDefault;
+                }
             }
 
             public override bool CanConvert(Type t) => typeof(Object).IsAssignableFrom(t);
@@ -206,45 +216,78 @@ namespace Z3.Utils
             public override void WriteJson(JsonWriter w, object value, JsonSerializer s)
             {
                 Object uobj = value as Object;
-                if (ReferenceEquals(uobj, null) || uobj == null) 
-                { 
-                    w.WriteNull(); 
-                    return; 
+                if (ReferenceEquals(uobj, null) || uobj == null)
+                {
+                    w.WriteNull();
+                    return;
                 }
 
                 table.Add(uobj);
-                if (forceObject)
-                {
-                    w.WriteValue("$ObjectReference");
-                }
-                else
-                {
-                    w.WriteValue(table.Count - 1);
-                }
+
+                writeJsonFunc(w);
             }
 
             public override object ReadJson(JsonReader r, Type t, object existingValue, JsonSerializer s)
             {
-                if (r.TokenType == JsonToken.Null) 
+                return readJsonFunc(r);
+            }
+
+            private void WriteJsonForce(JsonWriter w)
+            {
+                // If you are serializing a Object this will be the fixed value
+
+                // serializedValue: '"$ObjectReference"'
+                w.WriteValue("$ObjectReference");
+            }
+
+            private void WriteJsonDefault(JsonWriter w)
+            {
+                // If you are serializing anything different than Object, it will serialize as JSON, but Objects will be indexes
+                /* Examples
+                
+                1. Serialized class / struct
+                 serializedValue: '{
+                    "ProjectilePrefab":0, // Index of serializes object in list
+                    "Speed":10.0,
+                    "Damage":{
+                        "HitMode":2,
+                        "HitVfxs": [0, 1], // Indexes of serializes objects in list
+                        "DamageRule":{
+                            "Guid":"aaa111",
+                            "Name":"Enemy"
+                        },
+
+                // 2. List<Transform>
+                serializedValue: "[0,1,null,2,3,null]'
+                */
+                w.WriteValue(table.Count - 1);
+            }
+
+            private object ReadJsonForce(JsonReader r)
+            {
+                if (r.TokenType == JsonToken.Null)
                     return null;
 
-                if (r.TokenType != JsonToken.Integer && !forceObject)
+                return table[0];
+            }
+
+            private object ReadJsonDefault(JsonReader r)
+            {
+                if (r.TokenType == JsonToken.Null)
+                    return null;
+
+                if (r.TokenType != JsonToken.Integer) // TEMP: Safe operation
                     throw new JsonSerializationException($"Expected integer or 'ref' token, but got {r.TokenType} instead.");
 
                 int index = 0;
-                if (r.TokenType == JsonToken.Integer)
-                {
-                    index = Convert.ToInt32(r.Value);
-                }
 
-                if (index < 0 || index >= table.Count)
+                if (index < 0 || index >= table.Count) // TEMP: Safe operation
                 {
                     Debug.LogError($"CRITICAL ERROR: You are trying to get an object outside of the table range: {index}");
                     return null;
                 }
 
                 return table[index];
-
             }
         }
     }
