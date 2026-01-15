@@ -276,10 +276,10 @@ namespace Z3.Utils
                 if (r.TokenType == JsonToken.Null)
                     return null;
 
-                if (r.TokenType != JsonToken.Integer) // TEMP: Safe operation
-                    throw new JsonSerializationException($"Expected integer or 'ref' token, but got {r.TokenType} instead.");
+                //if (r.TokenType != JsonToken.Integer) // TEMP: Safe operation
+                //    throw new JsonSerializationException($"Expected integer or 'ref' token, but got {r.TokenType} instead.");
 
-                int index = 0;
+                int index = (int)r.Value;
 
                 if (index < 0 || index >= table.Count) // TEMP: Safe operation
                 {
