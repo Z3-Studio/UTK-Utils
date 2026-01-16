@@ -83,9 +83,29 @@ namespace Z3.Utils.ExtensionMethods
             }
         }
 
+        public static bool TryGetBackingField(this PropertyInfo propertyInfo, out FieldInfo fieldInfo)
+        {
+            fieldInfo = null;
+            if (!propertyInfo.Name.EndsWith(">k__BackingField"))
+                return false;
+
+            fieldInfo = GetBackingField(propertyInfo);
+            return true;
+        }
+
         public static FieldInfo GetBackingField(this PropertyInfo propertyInfo)
         {
             return propertyInfo.DeclaringType.GetField($"<{propertyInfo.Name}>k__BackingField", ReflectionUtils.InstanceAccess);
+        }
+
+        public static bool TryGetBackingField(this Type parentType, string memberName, out FieldInfo fieldInfo)
+        {
+            fieldInfo = null;
+            if (!memberName.EndsWith(">k__BackingField"))
+                return false;
+
+            fieldInfo = GetBackingField(parentType, memberName);
+            return true;
         }
 
         public static FieldInfo GetBackingField(this Type parentType, string memberName)
