@@ -20,6 +20,12 @@ namespace Z3.Utils.ExtensionMethods
             DrawArc(transform.position, transform.up, normal, 360f, radius, color);
         }
 
+        public static void DrawWireCircle(this Transform transform, float radius, Color color)
+        {
+            Vector3 normal = GetArcDirection(transform, 360f);
+            DrawWireArc(transform.position, transform.up, normal, 360f, radius, color);
+        }
+
         public static void DrawArc(this Transform transform, Vector3 direction, float openingAngle, float distance, Color color)
         {
             Vector3 normal = GetArcDirection(Vector3.forward, direction, openingAngle);
