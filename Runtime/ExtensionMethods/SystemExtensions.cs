@@ -66,6 +66,13 @@ namespace Z3.Utils.ExtensionMethods
             return $"{(int)timeSpawn.TotalHours}:{timeSpawn.Minutes:D2}:{timeSpawn.Seconds:D2}";
         }
 
+        /// <returns> Ex: 00:00:00:000 </returns>
+        public static string FormatToTimeMilliseconds(this float time)
+        {
+            TimeSpan timeSpawn = TimeSpan.FromSeconds(time);
+            return $"{(int)timeSpawn.TotalHours}:{timeSpawn.Minutes:D2}:{timeSpawn.Seconds:D2}:{timeSpawn.Milliseconds:D3}";
+        }
+
         /// <returns> 00:00:000 </returns>
         public static string FormatToStopwatch(this float time)
         {

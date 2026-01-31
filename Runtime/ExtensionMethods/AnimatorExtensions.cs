@@ -8,8 +8,12 @@ namespace Z3.Utils.ExtensionMethods
     {
         public static void PlayStateAllLayers(this Animator animator, string stateName, float transition = 0.25f)
         {
+            int stateId = Animator.StringToHash(stateName);
             for (int layerIndex = 0; layerIndex <= animator.layerCount; layerIndex++)
             {
+                if (!animator.HasState(layerIndex, stateId))
+                    return;
+
                 PlayState(animator, stateName, transition, layerIndex);
             }
         }
@@ -31,7 +35,7 @@ namespace Z3.Utils.ExtensionMethods
             }
             else
             {
-                animator.CrossFade(stateName, transition / current.length, layerIndex);
+                animator.CrossFade(stateName, transition, layerIndex);
             }
         }
 
