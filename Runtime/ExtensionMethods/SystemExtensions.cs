@@ -66,6 +66,20 @@ namespace Z3.Utils.ExtensionMethods
             return $"{(int)timeSpawn.TotalHours}:{timeSpawn.Minutes:D2}:{timeSpawn.Seconds:D2}";
         }
 
+        /// <returns> Ex: 0:00:00 or 00:00 </returns>
+        public static string FormatToTimeWithOptionalHours(this float time)
+        {
+            TimeSpan timeSpawn = TimeSpan.FromSeconds(time);
+
+            int totalHours = (int)timeSpawn.TotalHours;
+            if (totalHours > 0)
+            {
+                return $"{totalHours}:{timeSpawn.Minutes:D2}:{timeSpawn.Seconds:D2}";
+            }
+
+            return $"{timeSpawn.Minutes:D2}:{timeSpawn.Seconds:D2}";
+        }
+
         /// <returns> Ex: 00:00:00:000 </returns>
         public static string FormatToTimeMilliseconds(this float time)
         {
