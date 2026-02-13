@@ -8,6 +8,18 @@ namespace Z3.Utils.ExtensionMethods
 {
     public static class ReflectionExtensions
     {
+        public static bool IsAssignableFromAny(this MemberInfo member, params Type[] types)
+        {
+            foreach (Type type in types)
+            {
+                bool hasType = member.IsAssignableFrom(type);
+                if (hasType)
+                    return true;
+            }
+
+            return false;
+        }
+
         public static bool IsAssignableFrom(this MemberInfo member, Type type)
         {
             if (member is PropertyInfo propertyInfo)
