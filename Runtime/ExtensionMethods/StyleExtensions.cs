@@ -17,7 +17,7 @@ namespace Z3.Utils.ExtensionMethods
             visualElement.AddToClassList(BaseField<object>.alignedFieldUssClassName);
         }
 
-        public static void SetDisplay(this VisualElement visualElement, bool visible)
+        public static void SetActive(this VisualElement visualElement, bool visible)
         {
             SetDisplay(visualElement.style, visible);
         }
