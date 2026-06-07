@@ -106,6 +106,11 @@ namespace Z3.Utils.ExtensionMethods
             callback?.Invoke();
         }*/
 
+        public static TComponent GetOrAddComponent<TComponent>(this Component gameObject) where TComponent : Component
+        {
+            return gameObject.gameObject.GetOrAddComponent<TComponent>();
+        }
+
         public static TComponent GetOrAddComponent<TComponent>(this GameObject gameObject) where TComponent : Component
         {
             TComponent component = gameObject.GetComponent<TComponent>();
