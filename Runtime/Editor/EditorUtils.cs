@@ -3,6 +3,7 @@ using UnityEngine;
 using System.IO;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Object = UnityEngine.Object;
 
 #if UNITY_EDITOR
@@ -129,5 +130,30 @@ namespace Z3.Utils.Editor
 
         public static InvalidOperationException EditorOperationExpection() => new InvalidOperationException("This operation is only valid in the editor");
 
+        // Utility method
+        private static MethodInfo showColorPicker;
+
+        /// <summary>
+        /// <see cref="ColorPicker.Show(Action{Color}, Color, bool, bool, bool)"/>
+        /// </summary>
+        public static void ShowColorPicker(Action<Color> colorChangedCallback, Color color, bool showAlpha = true, bool hdr = false, bool setAlphaIfTransparentOnNextPick = false)
+        {
+            if (showColorPicker == null)
+            {
+                showColorPicker = typeof(UnityEditor.Editor).Assembly
+                    .GetType("UnityEditor.ColorPicker")
+                    .GetMethods(BindingFlags.Public | BindingFlags.Static)
+                    .First(method => method.Name == "Show" && method.GetParameters().Length == 5);
+            }
+
+            showColorPicker.Invoke(null, new object[]
+            {
+                colorChangedCallback,
+                color,
+                showAlpha,
+                hdr,
+                setAlphaIfTransparentOnNextPick
+            });
+        }
     }
 }
