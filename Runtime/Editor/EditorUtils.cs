@@ -138,6 +138,7 @@ namespace Z3.Utils.Editor
         /// </summary>
         public static void ShowColorPicker(Action<Color> colorChangedCallback, Color color, bool showAlpha = true, bool hdr = false, bool setAlphaIfTransparentOnNextPick = false)
         {
+#if UNITY_EDITOR
             if (showColorPicker == null)
             {
                 showColorPicker = typeof(UnityEditor.Editor).Assembly
@@ -154,6 +155,9 @@ namespace Z3.Utils.Editor
                 hdr,
                 setAlphaIfTransparentOnNextPick
             });
+#else
+            throw EditorOperationExpection();
+#endif
         }
     }
 }
