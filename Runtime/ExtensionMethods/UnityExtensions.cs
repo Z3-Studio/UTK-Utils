@@ -71,16 +71,19 @@ namespace Z3.Utils.ExtensionMethods
             return collider.attachedRigidbody && collider.attachedRigidbody.TryGetComponent(out component);
         }
 
+        /// <summary> Force Canvas reorganize UI objects </summary>
         public static void RebuildLayout(this MonoBehaviour monoBehaviour)
         {
             monoBehaviour.RebuildLayout(monoBehaviour.transform as RectTransform);
         }
 
+        /// <summary> Force Canvas reorganize UI objects </summary>
         public static void RebuildLayout(this MonoBehaviour monoBehaviour, RectTransform rectTransform)
         {
             monoBehaviour.StartCoroutine(RebuildLayout(rectTransform));
         }
 
+        /// <summary> Force Canvas reorganize UI objects </summary>
         private static IEnumerator RebuildLayout(RectTransform rectTransform)
         {
             LayoutRebuilder.ForceRebuildLayoutImmediate(rectTransform);
