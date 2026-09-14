@@ -6,7 +6,7 @@ namespace Z3.Utils.ExtensionMethods
 {
     public static class AnimatorExtensions
     {
-        public static void PlayStateAllLayers(this Animator animator, string stateName, float transition = 0.25f)
+        public static void PlayStateAllLayers(this Animator animator, string stateName, float transition = 0.1f)
         {
             int stateId = Animator.StringToHash(stateName);
             for (int layerIndex = 0; layerIndex <= animator.layerCount; layerIndex++)
@@ -14,28 +14,19 @@ namespace Z3.Utils.ExtensionMethods
                 if (!animator.HasState(layerIndex, stateId))
                     return;
 
-                PlayState(animator, stateName, transition, layerIndex);
+                animator.CrossFadeInFixedTime(stateName, transition, layerIndex);
             }
         }
 
-        /// <summary>
-        /// Similar than <see cref="Animator.CrossFadeInFixedTime"/> but the transition is normalized, using the state to be calculated
-        /// </summary>
-        public static void PlayState(this Animator animator, string stateName, float transition = 0.25f, int layerIndex = 0)
+        public static void PlayOrResetState(this Animator animator, string stateName, float transition = 0.1f, int layerIndex = 0)
         {
-            animator.CrossFade(stateName, transition, layerIndex);
-        }
-
-        public static void PlayOrResetState(this Animator animator, string stateName, float transition = 0.25f, int layerIndex = 0)
-        {
-            AnimatorStateInfo current = animator.GetCurrentAnimatorStateInfo(layerIndex);
-            if (current.IsName(stateName))
+            if (animator.IsState(stateName, layerIndex))
             {
                 animator.Play(stateName, layerIndex, 0f);
             }
             else
             {
-                animator.CrossFade(stateName, transition, layerIndex);
+                animator.CrossFadeInFixedTime(stateName, transition, layerIndex);
             }
         }
 
