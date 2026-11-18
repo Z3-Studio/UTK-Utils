@@ -97,12 +97,8 @@ namespace Z3.Utils.ExtensionMethods
 
         public static bool TryGetBackingField(this PropertyInfo propertyInfo, out FieldInfo fieldInfo)
         {
-            fieldInfo = null;
-            if (!propertyInfo.Name.EndsWith(">k__BackingField"))
-                return false;
-
             fieldInfo = GetBackingField(propertyInfo);
-            return true;
+            return fieldInfo != null;
         }
 
         public static FieldInfo GetBackingField(this PropertyInfo propertyInfo)
@@ -112,22 +108,21 @@ namespace Z3.Utils.ExtensionMethods
 
         public static bool TryGetBackingField(this Type parentType, string memberName, out FieldInfo fieldInfo)
         {
-            fieldInfo = null;
-            if (!memberName.EndsWith(">k__BackingField"))
-                return false;
-
-            fieldInfo = GetBackingField(parentType, memberName);
-            return true;
+            fieldInfo = memberName.EndsWith(">k__BackingField") ? GetBackingField(parentType, memberName) : null;
+            return fieldInfo != null;
         }
 
         public static FieldInfo GetBackingField(this Type parentType, string memberName)
         {
-            int index = memberName.IndexOf("<") + 1;
-            int endIndex = memberName.Length - index - ">k__BackingField".Length;
-            string declaredName = memberName.Substring(index, endIndex);
+            // GetField/GetProperty don't return private members declared in base classes, so walk the hierarchy
+            for (Type type = parentType; type != null; type = type.BaseType)
+            {
+                FieldInfo field = type.GetField(memberName, ReflectionUtils.InstanceDeclared);
+                if (field != null)
+                    return field;
+            }
 
-            PropertyInfo propertyField = parentType.GetProperty(declaredName, ReflectionUtils.InstanceAccess);
-            return propertyField.DeclaringType.GetField(memberName, ReflectionUtils.InstanceAccess);
+            return null;
         }
     }
 }
