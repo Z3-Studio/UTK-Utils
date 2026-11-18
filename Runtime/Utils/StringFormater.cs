@@ -20,6 +20,9 @@ namespace Z3.Utils
             return Regex.Replace(input, @"(\B[A-Z])", "-$1").ToLower();
         }
 
+        /// <summary> GameLaunched → game_launched </summary>
+        public static string GetSnakeCase(string value) => Regex.Replace(value, "(?<!^)([A-Z])", "_$1").ToLowerInvariant();
+
         /// <summary>
         /// Similar than UnityEditor.ObjectNames.NicifyVariableName;
         /// </summary>

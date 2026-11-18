@@ -30,7 +30,21 @@ namespace Z3.Utils.ExtensionMethods
             }
         }
 
-        public static bool IsState(this Animator animator, string stateName, int layer = 0)
+        public static bool IsState(this Animator animator, string stateName, int layer = 0) // Can be in transition between Target -> Next
+        {
+            return animator.GetCurrentAnimatorStateInfo(layer).IsName(stateName);
+        }
+
+        public static bool IsStatePlaying(this Animator animator, string stateName, int layerIndex = 0) // Is playing and not finished
+        {
+            AnimatorStateInfo current = animator.GetCurrentAnimatorStateInfo(layerIndex);
+            if (!current.IsName(stateName))
+                return false;
+
+            return current.normalizedTime < 1f;
+        }
+
+        public static bool IsFullyInState(this Animator animator, string stateName, int layer = 0) // No transitions
         {
             bool isName = animator.GetCurrentAnimatorStateInfo(layer).IsName(stateName);
             if (isName)
@@ -38,6 +52,20 @@ namespace Z3.Utils.ExtensionMethods
                 return !animator.IsInTransition(layer);
             }
             return false;
+        }
+
+        public static bool IsStateFinished(this Animator animator, string stateName, int layerIndex = 0) // End of this state. Not recommended to use in states with transitions
+        {
+            AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(layerIndex);
+            return stateInfo.IsName(stateName) && stateInfo.normalizedTime >= 1f;
+        }
+
+        public static bool IsCurrentOrNextState(this Animator animator, string stateName, int layerIndex = 0) // If is playing only A, or transition between A -> B  or B -> A, all cases A will be true
+        {
+            if (animator.IsInTransition(layerIndex) && animator.GetNextAnimatorStateInfo(layerIndex).IsName(stateName))
+                return true;
+
+            return animator.GetCurrentAnimatorStateInfo(layerIndex).IsName(stateName);
         }
 
         public static bool IsInTransition(this Animator animator, int layer)
@@ -82,7 +110,6 @@ namespace Z3.Utils.ExtensionMethods
 
         public static IEnumerator PlayCoroutine(this Animator animator, string animation, int layerIndex = 0)
         {
-
             animator.Play(animation);
             yield return new WaitForEndOfFrame();
 

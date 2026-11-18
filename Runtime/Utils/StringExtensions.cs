@@ -46,6 +46,10 @@ namespace Z3.Utils.ExtensionMethods
             return StringFormater.GetNiceString(value.ToString());
         }
 
+        /// <summary> GameLaunched → game_launched </summary>
+        public static string ToSnakeCase(this object value) => StringFormater.GetSnakeCase(value.ToString());
+        public static string ToSnakeCase(this string value) => StringFormater.GetSnakeCase(value);
+
         public static T ConvertToEnum<T>(this string value) where T : Enum
         {
             return (T)Enum.Parse(typeof(T), value);

@@ -120,6 +120,32 @@ namespace Z3.Utils
                 Gizmos.DrawLine(from, to);
             }
         }
+
+        public static void DrawWireCube(Vector3 center, Vector3 size, Color color, float duration = 1f, string key = null)
+        {
+            Add(Draw, duration, key);
+
+            void Draw()
+            {
+                Gizmos.color = color;
+                Gizmos.DrawWireCube(center, size);
+            }
+        }
+
+        public static void DrawWireCube(Vector3 center, Vector3 size, Quaternion rotation, Color color, float duration = 1f, string key = null)
+        {
+            Matrix4x4 matrix = Matrix4x4.TRS(center, rotation, Vector3.one);
+            Add(Draw, duration, key);
+
+            void Draw()
+            {
+                Matrix4x4 restore = Gizmos.matrix;
+                Gizmos.matrix = matrix;
+                Gizmos.color = color; 
+                Gizmos.DrawWireCube(Vector3.zero, size);
+                Gizmos.matrix = restore;
+            }
+        }
     }
 
     public class GizmosHandler : IDisposable
