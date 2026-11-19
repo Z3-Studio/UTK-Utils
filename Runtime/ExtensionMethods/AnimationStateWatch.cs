@@ -33,36 +33,26 @@ namespace Z3.Utils.ExtensionMethods
         ExitEnd = 4,
     }
 
-    /// <summary> Reads one state on one layer, as the Animator is now </summary>
+    public enum EAnimationStatePhase
+    {
+        None = 0,
+        Entering = 1,
+        Inside = 2,
+        Exiting = 3,
+    }
+
     public sealed class AnimationStateWatch
     {
-        private enum Phase
-        {
-            None,
-            Entering,
-            Inside,
-            Exiting
-        }
-
         private Animator animator;
+        private EAnimationCheck check;
         private int stateHash;
         private int layer;
-        private EAnimationCheck check;
         private bool requireEnter;
         private bool entered;
 
         public void Begin(Animator animator, string stateName, int layer, EAnimationPlayEnd end, bool requireEnter)
         {
-            EAnimationCheck check = end switch
-            {
-                EAnimationPlayEnd.EnterEnd => EAnimationCheck.EnterEnd,
-                EAnimationPlayEnd.ClipEnd => EAnimationCheck.ClipEnd,
-                EAnimationPlayEnd.ExitStart => EAnimationCheck.ExitStart,
-                EAnimationPlayEnd.ExitEnd => EAnimationCheck.ExitEnd,
-                _ => throw new ArgumentOutOfRangeException(nameof(end), end, null),
-            };
-
-            Begin(animator, stateName, layer, check, requireEnter);
+            Begin(animator, stateName, layer, ToCheck(end), requireEnter);
         }
 
         public void Begin(Animator animator, string stateName, int layer, EAnimationCheck check, bool requireEnter)
@@ -75,50 +65,60 @@ namespace Z3.Utils.ExtensionMethods
             entered = false;
         }
 
-        /// <summary> With requireEnter, false until the state is seen playing since Begin </summary>
         public bool IsMet()
         {
-            Phase phase = Read(out float time);
-            entered |= phase != Phase.None;
+            EAnimationStatePhase phase = ReadPhase(animator, layer, stateHash, out float time);
+            entered |= phase != EAnimationStatePhase.None;
 
             if (requireEnter && !entered)
                 return false;
 
-            return check switch
-            {
-                EAnimationCheck.Playing => phase != Phase.None,
-                EAnimationCheck.PlayingNoTransition => phase == Phase.Inside,
-                EAnimationCheck.EnterEnd => phase != Phase.Entering,
-                EAnimationCheck.ClipEnd => phase == Phase.None || time >= 1f,
-                EAnimationCheck.ExitStart => phase is Phase.Exiting or Phase.None,
-                EAnimationCheck.ExitEnd => phase == Phase.None,
-                _ => throw new ArgumentOutOfRangeException(nameof(check), check, null),
-            };
+            return IsCheckMet(check, phase, time);
         }
 
-        private Phase Read(out float time)
+        public static EAnimationStatePhase ReadPhase(Animator animator, int layer, int stateHash, out float time)
         {
             AnimatorStateInfo current = animator.GetCurrentAnimatorStateInfo(layer);
-            bool isCurrent = Matches(current);
+            bool isCurrent = Matches(current, stateHash);
 
             if (animator.IsInTransition(layer))
             {
                 AnimatorStateInfo next = animator.GetNextAnimatorStateInfo(layer);
-                if (Matches(next)) // Also a transition to itself: the new instance
+                if (Matches(next, stateHash)) // Also a transition to itself: the new instance
                 {
                     time = next.normalizedTime;
-                    return Phase.Entering;
+                    return EAnimationStatePhase.Entering;
                 }
 
                 time = current.normalizedTime;
-                return isCurrent ? Phase.Exiting : Phase.None;
+                return isCurrent ? EAnimationStatePhase.Exiting : EAnimationStatePhase.None;
             }
 
             time = current.normalizedTime;
-            return isCurrent ? Phase.Inside : Phase.None;
+            return isCurrent ? EAnimationStatePhase.Inside : EAnimationStatePhase.None;
         }
 
-        private bool Matches(AnimatorStateInfo info)
+        public static bool IsCheckMet(EAnimationCheck check, EAnimationStatePhase phase, float time) => check switch
+        {
+            EAnimationCheck.Playing => phase != EAnimationStatePhase.None,
+            EAnimationCheck.PlayingNoTransition => phase == EAnimationStatePhase.Inside,
+            EAnimationCheck.EnterEnd => phase != EAnimationStatePhase.Entering,
+            EAnimationCheck.ClipEnd => phase == EAnimationStatePhase.None || time >= 1f,
+            EAnimationCheck.ExitStart => phase is EAnimationStatePhase.Exiting or EAnimationStatePhase.None,
+            EAnimationCheck.ExitEnd => phase == EAnimationStatePhase.None,
+            _ => throw new ArgumentOutOfRangeException(nameof(check), check, null),
+        };
+
+        public static EAnimationCheck ToCheck(EAnimationPlayEnd end) => end switch
+        {
+            EAnimationPlayEnd.EnterEnd => EAnimationCheck.EnterEnd,
+            EAnimationPlayEnd.ClipEnd => EAnimationCheck.ClipEnd,
+            EAnimationPlayEnd.ExitStart => EAnimationCheck.ExitStart,
+            EAnimationPlayEnd.ExitEnd => EAnimationCheck.ExitEnd,
+            _ => throw new ArgumentOutOfRangeException(nameof(end), end, null),
+        };
+
+        private static bool Matches(AnimatorStateInfo info, int stateHash)
         {
             return info.shortNameHash == stateHash || info.fullPathHash == stateHash;
         }
